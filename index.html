@@ -8,6 +8,7 @@
   <title>v 0.0.1</title>
   <script src="js/jquery-3.1.1.min.js"></script>
   <script src="js/jquery-ui.js"></script>
+  <script src="js/quepad.js"></script>
 
   <style>
     :root {
@@ -25,8 +26,8 @@
     }
     .column {
       float: left;
-      width: 250px;
-      height: 300px;
+      width: 200px;
+      height: 200px;
     }
     .summary {
       float: right;
@@ -44,7 +45,7 @@
     .process {
       float: left;
       width: 90%;
-      height: 300px;
+      min-height  : 200px;
       border: 1px solid grey;
       margin-bottom: 10px;
       background-color: var(--colorA);
@@ -64,10 +65,34 @@
   </style>
 
   <script type="text/javascript">
-    function animateTick() {
-      // Iterate over all packages
-      // Move verically (if not inside a process)
-      // Time spend falling - is it actual time or just an animation?
+    function updateSummary() {
+      //get path
+      elList = document.getElementsByClassName('process');
+      pList = new Array();
+
+      for(i = 0; i < elList.length; i++ ) {
+        pList[i] = (parseText(elList[i], false));
+      }
+
+      // Summarize
+      sum = summarize(pList);
+      document.getElementById('summaryText').innerText = 'Lead time MIN: ' + sum.LD[0] + '\n' +
+        'Lead time MAX: ' + sum.LD[1] + '\n' + 'Task count: ' + sum.TASKS;
+
+      // Summarize alternative
+      for(i = 0; i < elList.length; i++ ) {
+        pList[i] = (parseText(elList[i], true));
+      }
+
+      sumA = summarize(pList);
+
+      document.getElementById('summaryText').innerText += '\n\nALTERNATIVE\nLead time MIN: ' + sumA.LD[0] + '\n' +
+        'Lead time MAX: ' + sumA.LD[1] + '\n' + 'Task count: ' + sumA.TASKS + ' (' + Math.floor(sumA.TASKS/sum.TASKS * 100)  + '%)';
+
+      //alternative
+      //document.getElementsByClassName('process')[1].classList.contains('alternative')
+      console.log(pList);
+      console.log(sum);
     }
   </script>
 </head>
@@ -76,28 +101,37 @@
   <!-- -->
   <div class="column">
     <div class="title" contenteditable="true">Business processing</div>
-    <div class="process" contenteditable="true">I'm a process<br/>LD [14,30]<br/>Split 1:2</br>Flow 0.8</div>
+    <div id="bp1" class="process" contenteditable="true">Upstream process resulting in an epic task<br/>LD 14,30<br/>Split 1:3<br/><br/>ALT<br/>Improved WIP and focus<br/>SPLIT 1:2</div>
   </div>
   <div class="column">
     <div class="title" contenteditable="true">Something else</div>
-    <div class="process" contenteditable="true">I'm a process<br/>LD [14,30]<br/>Split 1:2</br>Flow 0.8</div>
-    <div class="process alternative" contenteditable="true">I'm an alternative process<br/>LD [14,30]<br/>Split 1:2</br>Flow 0.8</div>
-    <div class="add">+</div>
+    <div id="bp2" class="process" contenteditable="true">Analysis<br/>LD 14,30<br/>Split 1:2</br></div>
+    <!--div id="bp2b" class="process alternative" contenteditable="true">I'm an alternative process<br/>LD [14,30]<br/>Split 1:2</br>Flow 0.8</div>
+    <div class="showalt">Add alternative</div-->
   </div>
   <div class="column">
-    <div class="title" contenteditable="true">New process...</div>
-    <div class="add">+</div>
+    <div id="bp3" class="title" contenteditable="true">Selection</div>
+    <div class="process" contenteditable="true">Selection<br/>LD 14,30<br/>Split 1:2</br></div>
   </div>
   <div class="column" style="">
-    <div class="title" contenteditable="true">Business processing</div>
-    <div class="process" contenteditable="true">I'm a process<br/>LD [14,30]<br/>Split 1:2</br>Flow 0.8</div>
+    <div class="title" contenteditable="true">Development</div>
+    <div class="process" contenteditable="true">Development<br/>LD 20-60<br/>Split 1:2</br></div>
+  </div>
+  <div class="column" style="">
+    <div class="title" contenteditable="true">Testing</div>
+    <div class="process" contenteditable="true">Testing<br/>LD 5<br/>Split 1:3</br>Flow 0.8</div>
   </div>
   <div class="column summary">
     <div class="title" contenteditable="true">Summary</div>
-    <div class="text">
+    <div id="summaryText" class="text">
       LD 123<br/>
       Something 123
     </div>
   </div>
+  <script type="text/javascript">
+    $('body').on('blur keyup paste input', '[contenteditable]', function(){
+      updateSummary();
+    });
+  </script>
 </body>
 </html>
